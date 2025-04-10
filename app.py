@@ -6,9 +6,13 @@ import os
 
 app = Flask(__name__)
 
+# ---------- PATH FOR DATABASE ----------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "clinic.db")
+
 # ---------- DATABASE FUNCTIONS ----------
 def init_db():
-    with sqlite3.connect("clinic.db") as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("""
         CREATE TABLE IF NOT EXISTS patients (
@@ -31,7 +35,7 @@ def index():
 
 @app.route('/patients')
 def patients():
-    with sqlite3.connect("clinic.db") as conn:
+    with sqlite3.connect(DB_PATH) as conn:
         cur = conn.cursor()
         cur.execute("SELECT * FROM patients")
         rows = cur.fetchall()
@@ -48,7 +52,7 @@ def add_patient():
         citizen_id = request.form['citizen_id']
         healthcare = request.form['healthcare']
 
-        with sqlite3.connect("clinic.db") as conn:
+        with sqlite3.connect(DB_PATH) as conn:
             cur = conn.cursor()
             cur.execute("""
                 INSERT INTO patients (hn, first_name, last_name, dob, address, citizen_id, healthcare)
@@ -58,8 +62,11 @@ def add_patient():
         return redirect(url_for('patients'))
     return render_template('add_patient.html')
 
+# ---------- INITIALIZE DATABASE ON STARTUP ----------
+with app.app_context():
+    init_db()
+
 # ---------- STARTUP ----------
 if __name__ == '__main__':
-    init_db()
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
