@@ -4,7 +4,8 @@ from datetime import datetime, date
 import sqlite3
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="cliniccarepros/templates")
+
 
 # ---------- PATH FOR DATABASE ----------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
